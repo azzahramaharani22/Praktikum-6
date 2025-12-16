@@ -1,22 +1,28 @@
 const Hapi = require('@hapi/hapi');
-const routes = require('./routes');
 
 const init = async () => {
+    const port = process.env.PORT ? Number(process.env.PORT) : 5000;
+    const host = process.env.HOST || '0.0.0.0';
+
     const server = Hapi.server({
-        port: 5000,
-        host: 'localhost',
+        port,
+        host,
         routes: {
             cors: {
-                origin: ['*'] // Mengizinkan semua origin untuk CORS
+                origin: ['*'],
             }
         }
     });
 
-    // Daftarkan semua rute
-    server.route(routes);
+    server.route(require('./routes'));
 
     await server.start();
-    console.log(`Server berjalan pada ${server.info.uri}`); // Perbaikan: info.uri bukan info.url
-};
+    console.log(`Server running at: ${server.info.uri}`);
+}
+
+process.on('unhandledRejection', (err) => {
+    console.log(err);
+    process.exit(1);
+});
 
 init();
